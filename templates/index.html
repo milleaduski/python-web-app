@@ -9,11 +9,6 @@
 	<a href="{{ url_for('homeFunction')}}">Home</a>
 	<a href="{{ url_for('profFunc')}}">Profile</a>
 	<a href="{{ url_for('login')}}">Login</a>
-	<h1 class="title">Welcome to my profile</h1>
-	{% if not user%}
-		<h2 class="sub-title">This is profile page</h2>
-	{% else %}
-		<h2 class="sub-title">This is page of {{user}}</h2>
-	{% endif %}
+	<h1 class="title">Welcome to my profile {{email}}</h1>
 </body>
 </html>

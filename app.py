@@ -1,10 +1,13 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, make_response
+from pprint import pprint
 
 app = Flask(__name__)
 
 @app.route('/welcome')
 def homeFunction():
-		return render_template('index.html')
+		email = request.cookies.get('email_user')
+		pprint(locals())
+		return render_template('index.html', email = email)
 
 @app.route('/welcome/<user>')
 def paramFunc(user):
@@ -13,8 +16,9 @@ def paramFunc(user):
 @app.route('/login', methods=["GET", "POST"])
 def login():
 	if request.method == "POST":
-		return "Your email is "+ request.form['email']
-	
+		resp = make_response("Your email is "+ request.form['email'])
+		resp.set_cookie('email_user', request.form['email'])
+		return resp
 	return render_template('login.html')
 
 @app.route('/profile/<int:user_id>')
