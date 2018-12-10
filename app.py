@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, make_response, session, url_for, redirect
+from flask import Flask, render_template, request, make_response, session, url_for, redirect, flash
 from pprint import pprint
 
 app = Flask(__name__)
@@ -20,7 +20,8 @@ def login():
 		# resp = make_response("Your email is "+ request.form['email'])
 		# resp.set_cookie('email_user', request.form['email'])
 		session['email'] = request.form['email']
-		# return resp
+		flash("You have successfully logged in", "success")
+		return redirect(url_for('profileFunc', email = session['email']))
 
 	if 'email' in session:
 		email = session['email']
@@ -34,6 +35,7 @@ def profileFunc(email):
 @app.route('/logout')
 def logout():
 	session.pop('email', None)
+	flash("You have successfully logged out", "warning")
 	return redirect(url_for("login"))
 
 @app.route('/profile')

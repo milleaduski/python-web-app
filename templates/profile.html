@@ -2,9 +2,19 @@
 <html>
 <head>
 	<title>Template Jinja2</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 </head>
 
 <body>
+	{% with messages = get_flashed_messages() %}
+		{% if messages %}
+			{% for message in messages %}
+				<div class="alert alert-success" role="alert">
+					{{message}}
+				</div>
+			{% endfor %}
+		{% endif %}
+	{% endwith %}
 	<h1>This is the profile page</h1>
 	<h2 style="color:blue;">Hai my name is {{email}}</h1>
 	<a href="{{url_for('logout')}}">Logout</a>
