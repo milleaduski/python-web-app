@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request, make_response, session, url_for, redirect, flash
 from pprint import pprint
+import os
 
+from werkzeug.utils import secure_filename
 app = Flask(__name__)
 
 app.secret_key = '34ujeifaj21mkll'
@@ -42,3 +44,26 @@ def logout():
 def profFunc():
 	user = request.args.get('username')
 	return render_template('profile.html')
+
+# check file before save
+def allowed_file(filename):
+	return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSION
+
+ALLOWED_EXTENSION = set(['png', 'jpeg', 'jpg'])
+app.config['UPLOAD_FOLDER'] = 'uploads'
+@app.route('/upload', methods=["GET", "POST"])
+def uploadFile():
+	if request.method == 'POST':
+		file = request.files['file']
+
+		if 'file' not in request.files:
+			return redirect(request.url)
+
+		if file.filename == '': 
+			return redirect(request.url)
+
+		if file and allowed_file(file.filename):
+			filename = secure_filename(file.filename)
+			file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+			return "Your file has been saved.." + filename
+	return render_template('upload.html')
