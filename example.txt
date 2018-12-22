@@ -1,3 +1,4 @@
-The system is writing in the file example.txt write and read
- This is an additional word
- This is an additional word
+
+Chicken
+tomato
+sossis

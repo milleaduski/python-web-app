@@ -7,10 +7,22 @@
 
 # print(result)
 
+# file = open('example.txt', 'a+')
+
+# file.write('\n This is an additional word')
+# file.seek(0)
+# result = file.read()
+
+# print(result)
+
 file = open('example.txt', 'a+')
 
-file.write('\n This is an additional word')
-file.seek(0)
-result = file.read()
+def addList(text):
+	file.write('\n' + text)
+	dataInput()
 
-print(result)
+def dataInput():
+	addList(input('What Your list ?'))
+
+
+dataInput()
