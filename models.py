@@ -1,16 +1,16 @@
 import datetime
-from peewe import *
+from peewee import *
 
-DATABASE = SqliteDatabase('coments.db')
+DATABASE = SqliteDatabase('comments.db')
 
 class Message(Model):
 	context = TextField()
 	create_at = DateTimeField(default=datetime.datetime.now())
 
-class meta:
-	database = DATABASE
+	class Meta:
+		database = DATABASE
 
 def initialize():
 	DATABASE.connect()
-	DATABASE.create_tables(Message, safe = True)
+	DATABASE.create_tables([Message], safe=True)
 	DATABASE.close()
