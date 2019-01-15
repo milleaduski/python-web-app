@@ -5,28 +5,16 @@ from peewee import *
 DATABASE = 'tweets.db'
 database = SqliteDatabase(DATABASE)
 
-class BaseModel(Model):
+class BaseModel():
 	class Meta:
-		database = database
+		database = DATABASE
 
 
 class User(BaseModel):
-	username = CharField(unique=True)
+	username = CharField(unique = True)
 	password = CharField()
-	email = CharField(unique=True)
+	email = CharField(unique = True)
 	join_at = DateTimeField(default=datetime.datetime.now())
-
-	def following(self):
-		return (User.select()
-					.join(Relationship, on=Relationship.to_user)
-					.where(Relationship.from_user == self)
-					.order_by(User.username))
-
-	def following(self):
-		return (User.select()
-					.join(Relationship, on=Relationship.from_user)
-					.where(Relationship.to_user == self)
-					.order_by(User.username))
 
 class Message(BaseModel):
 	user = ForeignKeyField(User, backref = 'Messages')
@@ -42,14 +30,14 @@ class Relationship(BaseModel):
 			(('from_user', 'to_user'), True)
 		)
 
-@app.before_request
-def before_request():
-	database.connect()
+# @app.before_request
+# def before_request():
+# 	database.connect()
 
-@app.after_request
-def after_request():
-	database.close()
-	return response
+# @app.after_request
+# def after_request():
+# 	database.close()
+# 	return response
 
 def create_tables():
 	with database:

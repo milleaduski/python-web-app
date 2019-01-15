@@ -1,0 +1,15 @@
+>>> USER
+	Username
+	password
+	email
+	join_at
+
+
+>>> MESSAGE
+	user (foreign key)
+	content
+	published_at
+
+>>> RELATIONS
+	from_user (foreign key)
+	to_user (foreign key)
