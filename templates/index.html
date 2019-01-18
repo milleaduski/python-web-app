@@ -2,13 +2,17 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<title>Template Jinja2</title>
-	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css')}}">
+	<meta name='viewport' content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+	<title>Homepage</title>
 </head>
 <body>
-	<a href="{{ url_for('homeFunction')}}">Home</a>
-	<a href="{{ url_for('profFunc')}}">Profile</a>
-	<a href="{{ url_for('login')}}">Login</a>
-	<h1 class="title">Welcome to my profile {{email}}</h1>
+	<div class="jumbotron">
+	  <h1 class="display-4">Welcome to homepage</h1>
+	  <p class="lead">Welcome to the social media application that uses flasks</p>
+	  <hr class="my-4">
+	  <p>For new users you are required to register to use this application. please click register</p>
+	  <a class="btn btn-primary btn-lg" href="{{url_for('registerPage')}}" role="button">Register</a>
+	</div>
 </body>
 </html>

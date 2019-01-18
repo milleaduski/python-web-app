@@ -1,6 +1,9 @@
 import datetime
-from flask import Flask
+from flask import Flask, render_template, request
 from peewee import *
+from haslib import md5
+
+app = Flask(__name__)
 
 DATABASE = 'tweets.db'
 database = SqliteDatabase(DATABASE)
@@ -47,10 +50,37 @@ def before_request():
 	database.connect()
 
 @app.after_request
-def after_request():
+def after_request(response):
 	database.close()
 	return response
 
 def create_tables():
 	with database:
 		database.create_tables([User, Relationship, Message])
+
+
+# ================================================================
+# ========================ROUTING=================================
+# ================================================================
+
+# Homepage routing
+@app.route('/')
+def showHomePage():
+	return render_template('index.html')
+
+@app.route('/register', methods =['GET', 'POST'])
+def registerPage():
+	if request.method == 'POST' and request.form['username']:
+		try:
+			with database.atomic():
+				user = User.create(
+						username 	= request.form['username'],
+						password 	= md5(request.form['password'].encode('utf-8')).hexdigest(),
+						email		= request.form['email']
+				)
+			return redirect(url_for('showHomePage'))
+		except IntegrityError:
+			return 'There is something error'
+
+
+	return render_template('register.html')
