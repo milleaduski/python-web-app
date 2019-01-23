@@ -1,7 +1,7 @@
 import datetime
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, url_for, redirect
 from peewee import *
-from haslib import md5
+from hashlib import md5
 
 app = Flask(__name__)
 
