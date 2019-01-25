@@ -1,9 +1,10 @@
 import datetime
-from flask import Flask, render_template, request, url_for, redirect
+from flask import Flask, render_template, request, url_for, redirect, session
 from peewee import *
 from hashlib import md5
 
 app = Flask(__name__)
+app.secret_key = 'so_secret_123456789'
 
 DATABASE = 'tweets.db'
 database = SqliteDatabase(DATABASE)
@@ -58,15 +59,23 @@ def create_tables():
 	with database:
 		database.create_tables([User, Relationship, Message])
 
+def auth_user(user):
+	session['logged_in'] = True
+	session['user_id']	 = user.id
+	session['username']	 = user.username
+
+def get_current_user():
+	if session.get('logged_in'):
+		return User.get(User.id ==  session['user_id'])
 
 # ================================================================
 # ========================ROUTING=================================
 # ================================================================
 
 # Homepage routing
-@app.route('/')
-def showHomePage():
-	return render_template('index.html')
+@app.route('/<user>')
+def showHomePage(user):
+	return render_template('index.html', user = user)
 
 @app.route('/register', methods =['GET', 'POST'])
 def registerPage():
@@ -84,3 +93,20 @@ def registerPage():
 
 
 	return render_template('register.html')
+
+@app.route('/login', methods =['GET', 'POST'])
+def loginPage():
+	if request.method == 'POST' and request.form['username']:
+		try:
+			hashed_pass = md5(request.form['password'].encode('utf-8')).hexdigest()
+			user = User.get(
+				(User.username == request.form['username']) &
+				(User.password == hashed_pass)
+			)
+		except User.DoesNotExist:
+			return 'User doesnt Exist'
+		else:
+			auth_user(user)
+			current_user = get_current_user()
+			return redirect(url_for('showHomePage', user = current_user.username))
+	return render_template('login.html')
