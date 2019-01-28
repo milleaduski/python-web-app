@@ -1,5 +1,5 @@
 import datetime
-from flask import Flask, render_template, request, url_for, redirect, session
+from flask import Flask, render_template, request, url_for, redirect, session, flash
 from peewee import *
 from hashlib import md5
 
@@ -63,6 +63,7 @@ def auth_user(user):
 	session['logged_in'] = True
 	session['user_id']	 = user.id
 	session['username']	 = user.username
+	flash('You have successfully logged in '+ session['username'])
 
 def get_current_user():
 	if session.get('logged_in'):
@@ -73,9 +74,9 @@ def get_current_user():
 # ================================================================
 
 # Homepage routing
-@app.route('/<user>')
-def showHomePage(user):
-	return render_template('index.html', user = user)
+@app.route('/')
+def showHomePage():
+	return render_template('index.html')
 
 @app.route('/register', methods =['GET', 'POST'])
 def registerPage():
@@ -87,6 +88,7 @@ def registerPage():
 						password 	= md5(request.form['password'].encode('utf-8')).hexdigest(),
 						email		= request.form['email']
 				)
+				auth_user(user)
 			return redirect(url_for('showHomePage'))
 		except IntegrityError:
 			return 'There is something error'
@@ -108,5 +110,11 @@ def loginPage():
 		else:
 			auth_user(user)
 			current_user = get_current_user()
-			return redirect(url_for('showHomePage', user = current_user.username))
+			return redirect(url_for('showHomePage'))
 	return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+	session.pop('logged_in', None)
+	flash('logout was successful')
+	return redirect(url_for('showHomePage'))
