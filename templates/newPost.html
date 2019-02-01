@@ -1,0 +1,11 @@
+
+{%extends "layout.html" %}
+{% block body %}
+<div class="jumbotron">
+	<h1 class="display-4">New Status</h1>
+	<form action="{{url_for('createPost')}}" method="POST" autocomplete="off">
+		<textarea name="content" rows="8" cols="80" class="form-control"></textarea>
+  		<button type="submit" class="btn btn-primary">Update Status</button>
+	</form>
+</div>
+{% endblock %}

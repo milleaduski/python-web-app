@@ -1,4 +1,5 @@
 import datetime
+from functools import wraps
 from flask import Flask, render_template, request, url_for, redirect, session, flash
 from peewee import *
 from hashlib import md5
@@ -32,10 +33,13 @@ class User(BaseModel):
 					.where(Relationship.to_user == self)
 					.order_by(User.username))
 
+
 class Message(BaseModel):
 	user = ForeignKeyField(User, backref = 'Messages')
 	content = TextField()
 	published_at = DateTimeField(default=datetime.datetime.now())
+
+
 
 class Relationship(BaseModel):
 	from_user	= ForeignKeyField(User, backref='relationships')
@@ -45,6 +49,22 @@ class Relationship(BaseModel):
 		indexes = (
 			(('from_user', 'to_user'), True)
 		)
+
+def not_login(f):
+	@wraps(f)
+	def decorated_function(*args, **kwargs):
+		if session.get('logged_in'):
+			return redirect(url_for('showHomePage'))
+		return f(*args, **kwargs)
+	return decorated_function
+
+def login_required(f):
+	@wraps(f)
+	def decorated_function(*args, **kwargs):
+		if not session.get('logged_in'):
+			return redirect(url_for('loginPage'))
+		return f(*args, **kwargs)
+	return decorated_function
 
 @app.before_request
 def before_request():
@@ -75,10 +95,12 @@ def get_current_user():
 
 # Homepage routing
 @app.route('/')
+@login_required
 def showHomePage():
 	return render_template('index.html')
 
 @app.route('/register', methods =['GET', 'POST'])
+@not_login
 def registerPage():
 	if request.method == 'POST' and request.form['username']:
 		try:
@@ -92,8 +114,6 @@ def registerPage():
 			return redirect(url_for('showHomePage'))
 		except IntegrityError:
 			return 'There is something error'
-
-
 	return render_template('register.html')
 
 @app.route('/login', methods =['GET', 'POST'])
@@ -118,3 +138,16 @@ def logout():
 	session.pop('logged_in', None)
 	flash('logout was successful')
 	return redirect(url_for('showHomePage'))
+
+@app.route('/add-post', methods =['GET', 'POST'])
+@login_required
+def createPost():
+	user = get_current_user()
+	if request.method == 'POST' and request.form['content']:
+		message = Message.create(
+			user 		 = user,
+			content 	 = request.form['content']
+		)
+		flash('Your status has been updated successfully')
+		return redirect(url_for('showHomePage'))
+	return render_template('newPost.html')
