@@ -35,7 +35,7 @@ class User(BaseModel):
 
 
 class Message(BaseModel):
-	user = ForeignKeyField(User, backref = 'Messages')
+	user = ForeignKeyField(User, backref = 'messages')
 	content = TextField()
 	published_at = DateTimeField(default=datetime.datetime.now())
 
@@ -149,5 +149,16 @@ def createPost():
 			content 	 = request.form['content']
 		)
 		flash('Your status has been updated successfully')
-		return redirect(url_for('showHomePage'))
+		# Before
+		# return redirect(url_for('showHomePage'))
+		return redirect(url_for('userProfile', username = user.username))
 	return render_template('newPost.html')
+
+
+@app.route('/user/<username>')
+def userProfile(username):
+	user = User.get(User.username == username)
+	messages = user.messages.order_by(Message.published_at.desc())
+	return render_template('profile.html', messages = messages, user=user)
+
+	
