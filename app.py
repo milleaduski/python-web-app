@@ -1,6 +1,6 @@
 import datetime
 from functools import wraps
-from flask import Flask, render_template, request, url_for, redirect, session, flash
+from flask import Flask, render_template, request, url_for, redirect, session, flash, abort
 from peewee import *
 from hashlib import md5
 
@@ -157,8 +157,27 @@ def createPost():
 
 @app.route('/user/<username>')
 def userProfile(username):
-	user = User.get(User.username == username)
+	try:
+		user = User.get(User.username == username)
+	except User.DoesNotExist:
+		abort(404)
 	messages = user.messages.order_by(Message.published_at.desc())
 	return render_template('profile.html', messages = messages, user=user)
 
-	
+@app.route('/user_follow/<username>', methods =['POST'])
+def userFollow(username):
+	try:
+		user = User.get(User.username == username)
+	except User.DoesNotExist:
+		abort(404)
+	# Atomic transaction
+	try:
+		with database.atomic():
+			Relationship.create(
+				from_user = get_current_user(),
+				to_user = user
+			)
+	except IntegrityError:
+		pass
+	flash("you have followed "+ username)
+	return redirect(url_for('userProfile', username=username))
