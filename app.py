@@ -27,11 +27,16 @@ class User(BaseModel):
 					.where(Relationship.from_user == self)
 					.order_by(User.username))
 
-	def following(self):
+	def followers(self):
 		return (User.select()
 					.join(Relationship, on=Relationship.from_user)
 					.where(Relationship.to_user == self)
 					.order_by(User.username))
+
+	def is_following(self, user):
+		return (Relationship.select()
+				.where( (Relationship.from_user == self) & (Relationship.to_user == user) )
+				.exists())
 
 
 class Message(BaseModel):
@@ -181,3 +186,23 @@ def userFollow(username):
 		pass
 	flash("you have followed "+ username)
 	return redirect(url_for('userProfile', username=username))
+
+@app.route('/user_unfollow/<username>', methods =['POST'])
+def userUnfollow(username):
+	try:
+		user = User.get(User.username == username)
+	except User.DoesNotExist:
+		abort(404)
+
+	(Relationship.delete()
+		.where(
+			(Relationship.from_user == get_current_user()) &
+			(Relationship.to_user == user))
+		.execute())
+
+	flash("you have unfollowed "+ username)
+	return redirect(url_for('userProfile', username=username))
+
+@app.context_processor
+def _inject_user():
+	return {'active_user': get_current_user()}
