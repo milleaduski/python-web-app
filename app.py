@@ -102,7 +102,13 @@ def get_current_user():
 @app.route('/')
 @login_required
 def showHomePage():
-	return render_template('index.html')
+	user = get_current_user()
+	messages = (Message.select()
+				.where(Message.user << user.following())
+				.order_by(Message.published_at.desc())
+		)
+
+	return render_template('index.html', message = messages)
 
 @app.route('/register', methods =['GET', 'POST'])
 @not_login
