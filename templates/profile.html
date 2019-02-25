@@ -12,6 +12,13 @@
 			</form>
 		{% endif %}
 	{% endif %}
+  <hr>
+  	<a href="{{url_for('showFollowers', username = user.username)}}" class="btn btn-primary">
+  		Follower <span class="badge badge-light">{{user.followers() | length}} </span>
+  	</a>
+  	<a href="{{url_for('showFollowing', username = user.username)}}" class="btn btn-success">
+  		Following <span class="badge badge-light">{{user.following() | length}} </span>
+  	</a>
   <h1 class="display-4">Welcome to homepage {{user.username}}, I'm using base layout</h1>
   <p class="lead">Welcome to the social media application that uses flasks</p>
   <hr class="my-4">

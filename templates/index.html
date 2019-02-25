@@ -9,7 +9,7 @@
 </div>
 <h2 style="text-align: center;">Your feed</h2>
   {%for message in messages%}
-		<h4>{{message.content}} - by {{message.user.username}}</h4>
+		<h4>{{message.content}} - by <a href="{{url_for('userProfile', username=message.user.username)}}">{{message.user.username}}</a></h4>
 		<span style="font-size: 10px; font-style: italic;">{{message.published_at}}</span>
   {%endfor %}
 {% endblock %}

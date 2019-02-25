@@ -104,11 +104,12 @@ def get_current_user():
 def showHomePage():
 	user = get_current_user()
 	messages = (Message.select()
-				.where(Message.user << user.following())
-				.order_by(Message.published_at.desc())
+				.where((Message.user << user.following()) |
+					(Message.user == user.id)
+				)
+				.order_by(Message.published_at.desc()).limit(3)
 		)
-
-	return render_template('index.html', message = messages)
+	return render_template('index.html', messages = messages)
 
 @app.route('/register', methods =['GET', 'POST'])
 @not_login
@@ -208,6 +209,23 @@ def userUnfollow(username):
 
 	flash("you have unfollowed "+ username)
 	return redirect(url_for('userProfile', username=username))
+
+@app.route('/user/<username>/following')
+def showFollowing(username):
+	try:
+		user = User.get(User.username == username)
+	except User.DoesNotExist:
+		abort(404)
+	return render_template('userList.html', users = user.following())
+
+@app.route('/user/<username>/followers')
+def showFollowers(username):
+	try:
+		user = User.get(User.username == username)
+	except User.DoesNotExist:
+		abort(404)
+	return render_template('userList.html', users = user.followers())
+
 
 @app.context_processor
 def _inject_user():
