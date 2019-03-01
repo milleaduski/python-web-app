@@ -1,6 +1,6 @@
 import datetime
 from functools import wraps
-from flask import Flask, render_template, request, url_for, redirect, session, flash, abort
+from flask import Flask, render_template, request, url_for, redirect, session, flash, abort, jsonify
 from peewee import *
 from hashlib import md5
 
@@ -111,6 +111,25 @@ def showHomePage():
 		)
 	return render_template('index.html', messages = messages)
 
+@app.route('/loadMore/<int:pageNum>')
+def loadMore(pageNum):
+	user = get_current_user()
+	messages = {}
+
+	for message in (Message.select()
+				.where((Message.user << user.following()) |
+					(Message.user == user.id)
+				)
+				.order_by(Message.published_at.desc())
+				.paginate(pageNum, 3)):
+
+		messages[message.id] = {
+			'content' : message.content,
+			'user' : message.user.username
+		}
+	return jsonify(messages)
+
+
 @app.route('/register', methods =['GET', 'POST'])
 @not_login
 def registerPage():
@@ -169,19 +188,13 @@ def createPost():
 
 @app.route('/user/<username>')
 def userProfile(username):
-	try:
-		user = User.get(User.username == username)
-	except User.DoesNotExist:
-		abort(404)
+	user = getUser(username)
 	messages = user.messages.order_by(Message.published_at.desc())
 	return render_template('profile.html', messages = messages, user=user)
 
 @app.route('/user_follow/<username>', methods =['POST'])
 def userFollow(username):
-	try:
-		user = User.get(User.username == username)
-	except User.DoesNotExist:
-		abort(404)
+	user = getUser(username)
 	# Atomic transaction
 	try:
 		with database.atomic():
@@ -196,11 +209,7 @@ def userFollow(username):
 
 @app.route('/user_unfollow/<username>', methods =['POST'])
 def userUnfollow(username):
-	try:
-		user = User.get(User.username == username)
-	except User.DoesNotExist:
-		abort(404)
-
+	user = getUser(username)
 	(Relationship.delete()
 		.where(
 			(Relationship.from_user == get_current_user()) &
@@ -212,20 +221,19 @@ def userUnfollow(username):
 
 @app.route('/user/<username>/following')
 def showFollowing(username):
-	try:
-		user = User.get(User.username == username)
-	except User.DoesNotExist:
-		abort(404)
+	user = getUser(username)
 	return render_template('userList.html', users = user.following())
 
 @app.route('/user/<username>/followers')
 def showFollowers(username):
-	try:
-		user = User.get(User.username == username)
-	except User.DoesNotExist:
-		abort(404)
+	user = getUser(username)
 	return render_template('userList.html', users = user.followers())
 
+def getUser(username):
+	try:
+		return User.get(User.username == username)
+	except User.DoesNotExist:
+		abort(404)
 
 @app.context_processor
 def _inject_user():

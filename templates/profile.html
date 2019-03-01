@@ -2,14 +2,16 @@
 {% block body %}
 <div class="jumbotron">
 	{% if user.username != session.username %}
-		{% if active_user.is_following(user)%}
-			<form method="post" action="{{url_for('userUnfollow', username = user.username)}}">
-				<p class="bold">{{user.username}} <button class="btn btn-danger">-Unfollow</button></p>
-			</form>
-		{% else %}
-			<form method="post" action="{{url_for('userFollow', username = user.username)}}">
-				<p class="bold">{{user.username}} <button class="btn btn-primary">+Follow</button></p>
-			</form>
+		{% if session.logged_in %}
+			{% if active_user.is_following(user)%}
+				<form method="post" action="{{url_for('userUnfollow', username = user.username)}}">
+					<p class="bold">{{user.username}} <button class="btn btn-danger">-Unfollow</button></p>
+				</form>
+			{% else %}
+				<form method="post" action="{{url_for('userFollow', username = user.username)}}">
+					<p class="bold">{{user.username}} <button class="btn btn-primary">+Follow</button></p>
+				</form>
+			{% endif %}
 		{% endif %}
 	{% endif %}
   <hr>

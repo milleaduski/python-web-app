@@ -8,8 +8,28 @@
   <a class="btn btn-primary btn-lg" href="{{url_for('registerPage')}}" role="button">Register</a>
 </div>
 <h2 style="text-align: center;">Your feed</h2>
-  {%for message in messages%}
-		<h4>{{message.content}} - by <a href="{{url_for('userProfile', username=message.user.username)}}">{{message.user.username}}</a></h4>
-		<span style="font-size: 10px; font-style: italic;">{{message.published_at}}</span>
-  {%endfor %}
+	<div id="tweets">
+	  {%for message in messages%}
+			<h4>{{message.content}} - by <a href="{{url_for('userProfile', username=message.user.username)}}">{{message.user.username}}</a></h4>
+			<span style="font-size: 10px; font-style: italic;">{{message.published_at}}</span>
+	  {%endfor %}
+	</div>
+  	<a href="#" id="btn_load" data-id=2>Load more..</a>
+  	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  	<script type="text/javascript">
+  		$('#btn_load').on('click', function() {
+
+  			initPage = $(this).attr('data-id')
+
+  			$.get('/loadMore/'+initPage, function(res){
+  				console.log(res)
+  				if($.isEmptyObject(res))
+  					console.log('Empty !!')
+  				else
+  					$.each(res, function(key, item){
+
+  					})
+  			})
+  		})
+  	</script>
 {% endblock %}
